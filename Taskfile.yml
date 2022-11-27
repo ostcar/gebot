@@ -1,0 +1,74 @@
+version: '3'
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  server:
+    cmds:
+      - CGO_ENABLED=0 go build
+    sources:
+      - main.go
+      - config/*
+      - model/*
+      - web/*
+      - web/client/index.html
+      - web/static/*/*
+    generates:
+      - gebot
+    
+    deps:
+      - client
+
+  client:
+    dir: web/client
+    cmds:
+      - elm make src/Main.elm --output ../static/script/elm.js
+    sources:
+      - elm.json
+      - src/*.elm
+      - src/**/*.elm
+    generates:
+      - ../static/script/elm.js
+
+  client-production:
+    dir: web/client
+    cmds:
+      - elm make src/Main.elm --optimize --output elm.js
+      - uglifyjs elm.js --compress "pure_funcs=[F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9],pure_getters,keep_fargs=false,unsafe_comps,unsafe" | uglifyjs --mangle --output ../static/script/elm.js
+    sources:
+      - elm.json
+      - src/*.elm
+      - src/**/*.elm
+    generates:
+      - ../static/script/elm.js
+
+  build:
+    deps:
+      - client-production
+      - server
+
+  start:
+    desc: |
+      Starts the server. 
+      
+        Use --watch to restart the server if the source changes.
+
+        task start --watch
+
+    deps: 
+      - server
+
+    cmds:
+    - ./gebot
+
+    method: none
+
+    ignore_error: true
+
+
+  clean:
+    desc: Removes all generated files
+    cmds:
+      - git clean -xf

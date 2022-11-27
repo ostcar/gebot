@@ -1,0 +1,8 @@
+/gebot
+/config.toml
+/db.jsonl
+/cookies
+/web/client/elm.js
+
+/.task
+elm-stuff

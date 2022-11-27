@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+
+    <title>Gebot</title>
+  </head>
+  <body>
+    <header>
+      <div class="navbar navbar-dark bg-dark">
+        <div class="container">
+          <strong class="navbar-brand d-flex align-items-center">Gebot</strong>
+        </div>
+      </div>
+    </header>
+
+    <main class="py-5 container">
+      <div id="elm-app"></div>  
+    </main>
+    
+
+    <script src="/static/script/bootstrap.js"></script>
+    <script src="/static/script/elm.js"></script>
+    <script>
+    // From https://www.quirksmode.org/js/cookies.html#script
+    function readCookie(name) {
+      var nameEQ = name + "=";
+      var ca = document.cookie.split(';');
+      for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+      }
+      return "";
+    }
+
+      var app = Elm.Main.init({
+        node: document.getElementById("elm-app"),
+        flags: readCookie("gebot")
+      });      
+    </script>
+  </body>
+</html>
