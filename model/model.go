@@ -181,3 +181,12 @@ func (m *Model) List() []Gebot {
 	})
 	return gebote
 }
+
+// Reset deletes all gebote.
+func (m *Model) Reset() error {
+	log.Printf("reset event")
+	if err := m.writeEvent(eventReset{}); err != nil {
+		return fmt.Errorf("write reset event: %w", err)
+	}
+	return nil
+}

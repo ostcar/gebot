@@ -116,6 +116,7 @@ func (s server) initRouter() http.Handler {
 	router.Path(pathPrefixAPI + "/gebot").Methods("GET").HandlerFunc(s.list)
 	router.Path(pathPrefixAPI + "/gebot").Methods("POST").HandlerFunc(s.gebot)
 	router.Path(pathPrefixAPI + "/gebot").Methods("DELETE").HandlerFunc(s.delete)
+	router.Path(pathPrefixAPI + "/reset").Methods("DELETE").HandlerFunc(s.reset)
 
 	return router
 }
@@ -218,6 +219,18 @@ func (s server) delete(w http.ResponseWriter, r *http.Request) {
 
 	if err := s.mdl.Delete(content.ID); err != nil {
 		handleError(w, err)
+		return
+	}
+}
+
+func (s server) reset(w http.ResponseWriter, r *http.Request) {
+	if !isAdmin(r, s.secret) {
+		w.WriteHeader(403)
+		return
+	}
+
+	if err := s.mdl.Reset(); err != nil {
+		handleError(w, fmt.Errorf("reset: %w", err))
 		return
 	}
 }

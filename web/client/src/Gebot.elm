@@ -1,4 +1,4 @@
-module Gebot exposing (Gebot, ID, centfromString, decoder, delete, encoder, fetch, idDecoder, idToString, listDecoder, send, toString, centToString)
+module Gebot exposing (Gebot, ID, centToString, centfromString, decoder, delete, encoder, fetch, idDecoder, idToString, listDecoder, reset, send, toString)
 
 import Http
 import Json.Decode as Decode exposing (Decoder, int)
@@ -75,6 +75,19 @@ delete result id =
         , headers = []
         , url = "/api/gebot"
         , body = Http.jsonBody (deleteBodyEncoder id)
+        , expect = Http.expectWhatever result
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
+reset : (Result Http.Error () -> msg) -> Cmd msg
+reset result =
+    Http.request
+        { method = "DELETE"
+        , headers = []
+        , url = "/api/reset"
+        , body = Http.emptyBody
         , expect = Http.expectWhatever result
         , timeout = Nothing
         , tracker = Nothing

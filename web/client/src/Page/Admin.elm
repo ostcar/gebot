@@ -37,6 +37,7 @@ type Msg
     | ClickedDelete Gebot.ID
     | ReceivedDelete (Result Http.Error ())
     | ClickedRefresh
+    | ClickedReset
 
 
 permissionFromBool : Bool -> Permission
@@ -145,6 +146,11 @@ update msg model =
             , Gebot.fetch ReceivedGebote
             )
 
+        ClickedReset ->
+            ( model
+            , Gebot.reset ReceivedDelete
+            )
+
 
 sendLogin : String -> Cmd Msg
 sendLogin pass =
@@ -200,7 +206,7 @@ viewGebote model =
             text "Warte auf Server"
 
         StateError err ->
-            "Error: " ++ err |> text
+            text <| "Error: " ++ err
 
         StateSuccess gebote ->
             viewGeboteList gebote
@@ -214,6 +220,7 @@ viewGeboteList gebote =
     in
     div []
         [ button [ type_ "button", class "btn btn-danger", onClick ClickedRefresh ] [ text "Aktualisieren" ]
+        , button [ type_ "button", class "btn btn-danger", onClick ClickedReset ] [ text "Reset (ACHTUNG!, alles ist weg)" ]
         , table
             [ class "table" ]
             (List.map viewGebotLine geboteNr ++ viewGebotSummary gebote)

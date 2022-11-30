@@ -13,6 +13,9 @@ func getEvent(eventType string) Event {
 	case eventDelete{}.Name():
 		return &eventDelete{}
 
+	case eventReset{}.Name():
+		return &eventReset{}
+
 	default:
 		return nil
 	}
@@ -77,6 +80,25 @@ func (e eventDelete) validate(model *Model) error {
 
 func (e eventDelete) execute(model *Model, time time.Time) error {
 	delete(model.gebote, e.ID)
+	return nil
+}
+
+type eventReset struct{}
+
+func (e eventReset) String() string {
+	return "Reset"
+}
+
+func (e eventReset) Name() string {
+	return "reset"
+}
+
+func (e eventReset) validate(model *Model) error {
+	return nil
+}
+
+func (e eventReset) execute(model *Model, time time.Time) error {
+	model.gebote = make(map[int]int)
 	return nil
 }
 
