@@ -79,6 +79,26 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
+    div []
+        [ viewHeader
+        , viewContent model
+        , viewFooter
+        ]
+
+viewHeader : Html msg
+viewHeader =
+    header []
+        [ div [ class "navbar navbar-dark bg-dark" ]
+            [ div [ class "container" ]
+                [ strong [ class "navbar-brand d-flex align-items-center" ]
+                    [ text "Bietrunde 2022"
+                    ]
+                ]
+            ]
+        ]
+
+viewContent : Model -> Html Msg
+viewContent model =
     let
         content =
             case model.onPage of
@@ -88,10 +108,11 @@ view model =
                 OnPageAdmin ->
                     Admin.view model.adminModel |> Html.map MsgAdmin
     in
-    div []
-        [ content
-        , viewFooter
-        ]
+    Html.main_ [class "py-5 container"] [
+        content
+    ]
+
+
 
 
 viewFooter : Html Msg

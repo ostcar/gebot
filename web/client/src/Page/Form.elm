@@ -5,6 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import Json.Decode as Json
 
 
 type alias Model =
@@ -22,6 +23,7 @@ defaultModel =
     , state = OnForm
     , errMsg = Nothing
     }
+
 
 init : Model
 init =
@@ -160,22 +162,41 @@ view model =
 viewGebotForm : Model -> Html Msg
 viewGebotForm model =
     div []
-        [ text "Bitte gebe ein Gebot ab:"
+        [ text "Bitte geb ein Gebot ab:"
+        , br [] []
         , input
             [ type_ "Gebot"
             , value model.formGebot
             , onInput InsertedGebot
+            , onEnter ClickedGebot
+            , autofocus True
             ]
             []
-        , button [ class "btn btn-primary", onClick ClickedGebot ] [ text "Abgeben" ]
+        , br [] []
+        , button [ type_ "submit", class "btn btn-primary", onClick ClickedGebot ] [ text "Abgeben" ]
+        , br [] []
         , Maybe.withDefault "" model.formGebotErr |> text
         ]
+
+
+onEnter : Msg -> Attribute Msg
+onEnter msg =
+    let
+        isEnter code =
+            if code == 13 then
+                Json.succeed msg
+
+            else
+                Json.fail "not ENTER"
+    in
+    on "keydown" (Json.andThen isEnter keyCode)
 
 
 viewGebotConfirm : Model -> Html Msg
 viewGebotConfirm model =
     div []
         [ text ("Ist das Gebot von " ++ model.formGebot ++ "€ richtig?")
+        , br [] []
         , button [ class "btn btn-primary", onClick ClickedGebotConfirm ] [ text "Ja" ]
         , button [ class "btn btn-primary", onClick ClickedGebotAbort ] [ text "Nein" ]
         ]
@@ -185,6 +206,7 @@ viewGebotSuccess : Html Msg
 viewGebotSuccess =
     div []
         [ text "Dein Gebot wurde gezählt"
+        , br [] []
         , button [ class "btn btn-primary", onClick ClickedBack ] [ text "Zurück" ]
         ]
 
