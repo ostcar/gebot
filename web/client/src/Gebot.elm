@@ -115,10 +115,19 @@ centfromString input =
                         Err "Es darf nur ein Komma geben"
 
                     else
+                        let 
+                            qCentStr  = case String.length centStr of
+                                1 ->
+                                    stringToResult "Wert hinter dem Komma muss eine Zahl sein" (centStr ++ "0")
+                                2 -> 
+                                    stringToResult "Wert hinter dem Komma muss eine Zahl sein" centStr 
+                                _ ->
+                                    Err "Wert hinter dem Komma darf nur eine oder zwei Stellen haben"
+                        in
                         Result.map2
                             (\euro cent -> ( euro, cent ))
                             (stringToResult "Wert vor dem Komma muss eine Zahl sein" euroStr)
-                            (stringToResult "Wert hinter dem Komma muss eine Zahl sein" centStr)
+                            qCentStr
 
                 [ euroStr ] ->
                     stringToResult "Wert muss eine Zahl sein" euroStr

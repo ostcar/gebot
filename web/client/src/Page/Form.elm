@@ -10,7 +10,7 @@ import Json.Decode as Json
 
 type alias Model =
     { formGebot : String
-    , formGebotErr : Maybe String
+    , cent : Result String Int
     , state : State
     , errMsg : Maybe String
     }
@@ -19,7 +19,7 @@ type alias Model =
 defaultModel : Model
 defaultModel =
     { formGebot = ""
-    , formGebotErr = Nothing
+    , cent = Err "Bitte ein Gebot angeben"
     , state = OnForm
     , errMsg = Nothing
     }
@@ -32,7 +32,7 @@ init =
 
 type State
     = OnForm
-    | OnConfirm
+    | OnConfirm Int
     | OnSended
     | OnSuccess
     | OnError String
@@ -66,26 +66,17 @@ update msg model =
 
         InsertedGebot gebotStr ->
             let
-                gebotErr =
-                    case Gebot.centfromString gebotStr of
-                        Ok _ ->
-                            Nothing
-
-                        Err err ->
-                            Just err
+                cent =
+                    Gebot.centfromString gebotStr
             in
-            ( { model | formGebot = gebotStr, formGebotErr = gebotErr }
+            ( { model | formGebot = gebotStr, cent = cent }
             , Cmd.none
             )
 
         ClickedGebot ->
-            let
-                gebot =
-                    Gebot.centfromString model.formGebot
-            in
-            case gebot of
-                Ok _ ->
-                    ( { model | formGebotErr = Nothing, state = OnConfirm }
+            case model.cent of
+                Ok cent ->
+                    ( { model | state = OnConfirm cent }
                     , Cmd.none
                     )
 
@@ -95,13 +86,9 @@ update msg model =
                     )
 
         ClickedGebotConfirm ->
-            let
-                gebot =
-                    Gebot.centfromString model.formGebot
-            in
-            case gebot of
+            case model.cent of
                 Ok cent ->
-                    ( { model | formGebot = "", formGebotErr = Nothing, state = OnSended }
+                    ( { model | formGebot = "", cent = Err "Bitte Gebot eingeben", state = OnSended }
                     , Gebot.send ReceivedSendGebot cent
                     )
 
@@ -146,8 +133,8 @@ view model =
         OnForm ->
             viewGebotForm model
 
-        OnConfirm ->
-            viewGebotConfirm model
+        OnConfirm cent ->
+            viewGebotConfirm cent
 
         OnSended ->
             viewGebotSended
@@ -157,6 +144,16 @@ view model =
 
         OnError str ->
             viewGebotServerError str
+
+
+errOrEmpty : Result String a -> String
+errOrEmpty r =
+    case r of
+        Ok _ ->
+            ""
+
+        Err err ->
+            err
 
 
 viewGebotForm : Model -> Html Msg
@@ -175,7 +172,7 @@ viewGebotForm model =
         , br [] []
         , button [ type_ "submit", class "btn btn-primary", onClick ClickedGebot ] [ text "Abgeben" ]
         , br [] []
-        , Maybe.withDefault "" model.formGebotErr |> text
+        , text <| errOrEmpty model.cent
         ]
 
 
@@ -192,10 +189,10 @@ onEnter msg =
     on "keydown" (Json.andThen isEnter keyCode)
 
 
-viewGebotConfirm : Model -> Html Msg
-viewGebotConfirm model =
+viewGebotConfirm : Int -> Html Msg
+viewGebotConfirm cent =
     div []
-        [ text ("Ist das Gebot von " ++ model.formGebot ++ "€ richtig?")
+        [ text ("Ist das Gebot von " ++ Gebot.centToString cent ++ " richtig?")
         , br [] []
         , button [ class "btn btn-primary", onClick ClickedGebotConfirm ] [ text "Ja" ]
         , button [ class "btn btn-primary", onClick ClickedGebotAbort ] [ text "Nein" ]
