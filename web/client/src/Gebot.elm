@@ -1,4 +1,20 @@
-module Gebot exposing (Gebot, ID, centToString, centfromString, decoder, delete, encoder, fetch, idDecoder, idToString, listDecoder, reset, send, toString)
+module Gebot exposing
+    ( Gebot
+    , ID
+    , centToString
+    , centfromString
+    , decoder
+    , delete
+    , encoder
+    , fetch
+    , idDecoder
+    , idToString
+    , listDecoder
+    , reset
+    , send
+    , sort
+    , toString
+    )
 
 import Http
 import Json.Decode as Decode exposing (Decoder, int)
@@ -68,6 +84,11 @@ fetch result =
         }
 
 
+sort : List Gebot -> List Gebot
+sort =
+    List.sortBy (\g -> g.cent)
+
+
 delete : (Result Http.Error () -> msg) -> ID -> Cmd msg
 delete result id =
     Http.request
@@ -115,14 +136,17 @@ centfromString input =
                         Err "Es darf nur ein Komma geben"
 
                     else
-                        let 
-                            qCentStr  = case String.length centStr of
-                                1 ->
-                                    stringToResult "Wert hinter dem Komma muss eine Zahl sein" (centStr ++ "0")
-                                2 -> 
-                                    stringToResult "Wert hinter dem Komma muss eine Zahl sein" centStr 
-                                _ ->
-                                    Err "Wert hinter dem Komma darf nur eine oder zwei Stellen haben"
+                        let
+                            qCentStr =
+                                case String.length centStr of
+                                    1 ->
+                                        stringToResult "Wert hinter dem Komma muss eine Zahl sein" (centStr ++ "0")
+
+                                    2 ->
+                                        stringToResult "Wert hinter dem Komma muss eine Zahl sein" centStr
+
+                                    _ ->
+                                        Err "Wert hinter dem Komma darf nur eine oder zwei Stellen haben"
                         in
                         Result.map2
                             (\euro cent -> ( euro, cent ))

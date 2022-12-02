@@ -115,7 +115,7 @@ update msg model =
         ReceivedGebote result ->
             case result of
                 Ok gebote ->
-                    ( { model | gebote = StateSuccess gebote }
+                    ( { model | gebote = StateSuccess (Gebot.sort gebote) }
                     , Cmd.none
                     )
 
